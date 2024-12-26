@@ -1,28 +1,19 @@
-let links = [
-  "https://www.pond0x.com/swap/solana?ref=ExampleRef1",
-  "https://www.pond0x.com/swap/solana?ref=ExampleRef2",
-];
+let links = []; // Temporär, bis eine Datenbank angebunden wird
 
 export default function handler(req, res) {
   if (req.method === "GET") {
-    return res.status(200).json({ links });
-  }
-
-  if (req.method === "POST") {
+    res.status(200).json(links);
+  } else if (req.method === "POST") {
     const { link } = req.body;
-
-    const validPrefix = "https://www.pond0x.com/swap/solana?ref=";
-    if (!link.startsWith(validPrefix)) {
-      return res.status(400).json({ message: "Invalid link format." });
+    if (!link || !link.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
+      res.status(400).json({ error: "Invalid link" });
+      return;
     }
-
-    if (links.includes(link)) {
-      return res.status(400).json({ message: "Link already exists." });
-    }
-
     links.push(link);
-    return res.status(200).json({ message: "Link added successfully.", links });
+    res.status(201).json({ link });
+  } else {
+    res.setHeader("Allow", ["GET", "POST"]);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-
-  return res.status(405).json({ message: "Method not allowed." });
 }
+
