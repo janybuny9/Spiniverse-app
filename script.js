@@ -1,24 +1,12 @@
+import { fetchLinksFromAPI, addLinkToAPI } from "./LINK.js";
+
 const images = Array.from({ length: 22 }, (_, i) => `Images/pink-pepe${i + 1}.png`);
-let links = [];
+let links = []; // Dynamische Links-Liste
 
 // API-Verbindung herstellen und Links laden
-async function fetchLinks() {
-  try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links");
-    if (!response.ok) {
-      throw new Error("Failed to fetch links");
-    }
-    links = await response.json();
-    console.log("Aktuelle Links:", links);
-  } catch (error) {
-    console.error("Error fetching links:", error);
-    links = [];
-  }
-}
-
-// Links-Liste im Frontend aktualisieren (optional in der Konsole sichtbar)
-function logLinks() {
-  console.log("Links in der Liste:", links);
+async function initializeLinks() {
+  links = await fetchLinksFromAPI();
+  console.log("Abruf der Links abgeschlossen:", links);
 }
 
 // Roulette-Setup
@@ -63,7 +51,7 @@ populateRoulette();
 // Spin Button Logic
 spinButton.addEventListener("click", () => {
   if (spinning || links.length === 0) {
-    alert("No referral links available to spin!");
+    alert("Keine Referral-Links verfügbar!");
     return;
   }
   spinning = true;
@@ -79,8 +67,8 @@ spinButton.addEventListener("click", () => {
 
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
-    winnerLink.href = links[winnerIndex];
-    winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
+    winnerLink.href = links[winnerIndex].ref_link;
+    winnerLink.textContent = "Winning Referral Link";
     winnerDiv.classList.remove("hidden");
     spinning = false;
   }, 3000);
@@ -92,41 +80,23 @@ addLinkButton.addEventListener("click", () => addLinkForm.classList.toggle("hidd
 submitLinkButton.addEventListener("click", async () => {
   const newRefLink = newRefLinkInput.value.trim();
 
-  // Normalisieren des Links: Immer mit "www."
-  const normalizedLink = newRefLink.replace("https://pond0x.com/", "https://www.pond0x.com/");
-  if (!normalizedLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
-    alert("Invalid Ref Link");
+  // Validierung des Links
+  if (!newRefLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
+    alert("Ungültiger Ref Link");
     return;
   }
 
-  try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ link: normalizedLink }),
-    });
-
-    if (response.status === 409) {
-      alert("This link already exists!");
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error("Failed to add link");
-    }
-
-    const result = await response.json();
-    links.push(result.link);
-    logLinks(); // Links in der Konsole anzeigen
-    newRefLinkInput.value = "";
-    addLinkForm.classList.add("hidden");
-    alert("Link successfully added!");
-  } catch (error) {
-    console.error("Error adding link:", error);
-    alert("Failed to add link. Please try again.");
+  const result = await addLinkToAPI(newRefLink);
+  if (result.error) {
+    alert(result.error);
+  } else {
+    links.push(result);
+    console.log("Aktualisierte Links:", links);
+    alert("Link erfolgreich hinzugefügt!");
   }
+
+  newRefLinkInput.value = "";
+  addLinkForm.classList.add("hidden");
 });
 
 cancelLinkButton.addEventListener("click", () => {
@@ -144,23 +114,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const video = document.getElementById("backgroundVideo");
   const playButton = document.getElementById("playButton");
 
-  // Automatisch Ton aktivieren
   video.muted = false;
   video.play().catch((error) => {
     console.warn("Autoplay failed:", error);
-    video.muted = true; // Falls Autoplay scheitert, bleibt das Video stumm.
+    video.muted = true;
   });
 
-  // Button-Logik
   playButton.addEventListener("click", () => {
-    video.muted = !video.muted; // Ton ein-/ausschalten
-    video.play(); // Sicherstellen, dass das Video weiter abgespielt wird
+    video.muted = !video.muted;
+    video.play();
   });
 });
 
 // Initiale Links laden
-fetchLinks();
-
+initializeLinks();
 
 
 
