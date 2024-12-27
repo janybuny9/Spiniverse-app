@@ -4,12 +4,12 @@ let links = [];
 // API-Verbindung herstellen und Links laden
 async function fetchLinks() {
   try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links");
+    const response = await fetch("https://spiniverse-app.vercel.app/get_refs");
     if (!response.ok) {
       throw new Error("Failed to fetch links");
     }
     links = await response.json();
-    console.log("Aktuelle Links:", links);
+    console.log("Links aus der Datenbank:", links);
   } catch (error) {
     console.error("Error fetching links:", error);
     links = [];
@@ -79,8 +79,8 @@ spinButton.addEventListener("click", () => {
 
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
-    winnerLink.href = links[winnerIndex];
-    winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
+    winnerLink.href = links[winnerIndex].ref_link; // Verlinkung zum Gewinnerlink
+    winnerLink.textContent = "Winning Referral Link";
     winnerDiv.classList.remove("hidden");
     spinning = false;
   }, 3000);
@@ -100,12 +100,12 @@ submitLinkButton.addEventListener("click", async () => {
   }
 
   try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links", {
+    const response = await fetch("https://spiniverse-app.vercel.app/add_ref", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ link: normalizedLink }),
+      body: JSON.stringify({ ref_link: normalizedLink }),
     });
 
     if (response.status === 409) {
@@ -118,8 +118,8 @@ submitLinkButton.addEventListener("click", async () => {
     }
 
     const result = await response.json();
-    links.push(result.link);
-    logLinks(); // Links in der Konsole anzeigen
+    links.push(result); // Neue Daten in die Liste einfügen
+    logLinks();
     newRefLinkInput.value = "";
     addLinkForm.classList.add("hidden");
     alert("Link successfully added!");
@@ -144,17 +144,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const video = document.getElementById("backgroundVideo");
   const playButton = document.getElementById("playButton");
 
-  // Automatisch Ton aktivieren
   video.muted = false;
   video.play().catch((error) => {
     console.warn("Autoplay failed:", error);
     video.muted = true; // Falls Autoplay scheitert, bleibt das Video stumm.
   });
 
-  // Button-Logik
   playButton.addEventListener("click", () => {
     video.muted = !video.muted; // Ton ein-/ausschalten
-    video.play(); // Sicherstellen, dass das Video weiter abgespielt wird
+    video.play();
   });
 });
 
