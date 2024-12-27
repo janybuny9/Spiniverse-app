@@ -80,7 +80,7 @@ spinButton.addEventListener("click", () => {
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
     winnerLink.href = links[winnerIndex];
-    winnerLink.textContent = `Link #${winnerIndex + 1}`;
+    winnerLink.textContent = "Winning Referral Link";
     winnerDiv.classList.remove("hidden");
     spinning = false;
   }, 3000);
