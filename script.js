@@ -167,12 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Button-Logik
   playButton.addEventListener("click", () => {
-    if (video.muted) {
-      video.muted = false;
-      video.play();
-    } else {
-      video.muted = true;
-    }
+    video.muted = !video.muted; // Ton ein-/ausschalten
+    video.play(); // Sicherstellen, dass das Video weiter abgespielt wird
   });
 });
 
