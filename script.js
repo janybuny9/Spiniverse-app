@@ -1,6 +1,7 @@
 const images = Array.from({ length: 22 }, (_, i) => `Images/pink-pepe${i + 1}.png`);
 let links = [];
 
+// API-Verbindung herstellen und Links laden
 async function fetchLinks() {
   try {
     const response = await fetch("https://spiniverse-app.vercel.app/api/links");
@@ -8,6 +9,7 @@ async function fetchLinks() {
       throw new Error("Failed to fetch links");
     }
     links = await response.json();
+    updateLinksList(); // Liste im Frontend anzeigen
   } catch (error) {
     console.error("Error fetching links:", error);
     links = [];
@@ -15,6 +17,17 @@ async function fetchLinks() {
 }
 
 fetchLinks();
+
+// Links im Frontend anzeigen
+function updateLinksList() {
+  const linksContainer = document.getElementById("linksList");
+  linksContainer.innerHTML = ""; // Bestehende Liste leeren
+  links.forEach((link, index) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = `#${index + 1}: ${link}`;
+    linksContainer.appendChild(listItem);
+  });
+}
 
 const roulette = document.querySelector(".roulette");
 const spinButton = document.getElementById("spinButton");
@@ -56,7 +69,10 @@ populateRoulette();
 
 // Spin Button Logic
 spinButton.addEventListener("click", () => {
-  if (spinning) return;
+  if (spinning || links.length === 0) {
+    alert("No referral links available to spin!");
+    return;
+  }
   spinning = true;
   winnerDiv.classList.add("hidden");
 
@@ -86,6 +102,11 @@ submitLinkButton.addEventListener("click", async () => {
     return;
   }
 
+  if (links.includes(newRefLink)) {
+    alert("This link is already in the list!");
+    return;
+  }
+
   try {
     const response = await fetch("https://spiniverse-app.vercel.app/api/links", {
       method: "POST",
@@ -101,6 +122,7 @@ submitLinkButton.addEventListener("click", async () => {
 
     const result = await response.json();
     links.push(result.link);
+    updateLinksList(); // Liste aktualisieren
     newRefLinkInput.value = "";
     addLinkForm.classList.add("hidden");
     alert("Link successfully added!");
