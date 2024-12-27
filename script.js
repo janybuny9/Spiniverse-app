@@ -32,8 +32,6 @@ const addLinkForm = document.getElementById("addLinkForm");
 const newRefLinkInput = document.getElementById("newRefLink");
 const submitLinkButton = document.getElementById("submitLinkButton");
 const cancelLinkButton = document.getElementById("cancelLinkButton");
-const playButton = document.getElementById("playButton");
-const video = document.getElementById("backgroundVideo");
 
 let spinning = false;
 let currentRotation = 0;
@@ -139,15 +137,48 @@ function closeWinner() {
   winnerDiv.classList.add("hidden");
 }
 
-// Play Button Logic
-playButton.addEventListener("click", () => {
-  video.muted = false; // Ton aktivieren
-  video.play(); // Video abspielen
-  playButton.style.display = "none"; // Button ausblenden
+// Video-Ton-Steuerung
+document.addEventListener("DOMContentLoaded", () => {
+  const video = document.getElementById("backgroundVideo");
+  const playButton = document.createElement("button");
+
+  playButton.id = "playButton";
+  playButton.textContent = "🔊 Mute/Unmute";
+  document.body.appendChild(playButton);
+
+  // Button positionieren (oben rechts)
+  playButton.style.position = "absolute";
+  playButton.style.top = "10px";
+  playButton.style.right = "10px";
+  playButton.style.zIndex = "10";
+  playButton.style.padding = "10px";
+  playButton.style.background = "#ff00ff";
+  playButton.style.color = "white";
+  playButton.style.border = "none";
+  playButton.style.borderRadius = "5px";
+  playButton.style.cursor = "pointer";
+
+  // Automatisch Ton aktivieren
+  video.muted = false;
+  video.play().catch((error) => {
+    console.warn("Autoplay failed:", error);
+    video.muted = true; // Falls Autoplay scheitert, bleibt das Video stumm.
+  });
+
+  // Button-Logik
+  playButton.addEventListener("click", () => {
+    if (video.muted) {
+      video.muted = false;
+      video.play();
+    } else {
+      video.muted = true;
+    }
+  });
 });
 
 // Initiale Links laden
 fetchLinks();
+
 
 
 
