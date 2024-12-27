@@ -107,21 +107,22 @@ export default function handler(req, res) {
   } else if (req.method === "POST") {
     const { link } = req.body;
 
-    // Validierung des Links
-    if (!link || !link.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
+    // Normalisieren des Links: Immer mit "www."
+    const normalizedLink = link.replace("https://pond0x.com/", "https://www.pond0x.com/");
+    if (!normalizedLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
       res.status(400).json({ error: "Ungültiger Link" });
       return;
     }
 
     // Überprüfung auf Duplikate
-    if (links.includes(link)) {
+    if (links.includes(normalizedLink)) {
       res.status(409).json({ error: "Link existiert bereits" });
       return;
     }
 
     // Hinzufügen des Links
-    links.push(link);
-    res.status(201).json({ link });
+    links.push(normalizedLink);
+    res.status(201).json({ link: normalizedLink });
   } else {
     res.setHeader("Allow", ["GET", "POST", "OPTIONS"]);
     res.status(405).end(`Methode ${req.method} ist nicht erlaubt`);
