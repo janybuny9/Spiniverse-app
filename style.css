@@ -19,6 +19,8 @@ body {
   height: 100%;
   object-fit: cover;
   z-index: -1;
+  visibility: visible;
+  display: block;
 }
 
 .container {
@@ -114,6 +116,8 @@ button:hover {
   padding: 10px;
   font-size: 1em;
 }
+
+
 
 
 
