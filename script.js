@@ -92,7 +92,9 @@ addLinkButton.addEventListener("click", () => addLinkForm.classList.toggle("hidd
 submitLinkButton.addEventListener("click", async () => {
   const newRefLink = newRefLinkInput.value.trim();
 
-  if (!newRefLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
+  // Normalisieren des Links: Immer mit "www."
+  const normalizedLink = newRefLink.replace("https://pond0x.com/", "https://www.pond0x.com/");
+  if (!normalizedLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
     alert("Invalid Ref Link");
     return;
   }
@@ -103,7 +105,7 @@ submitLinkButton.addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ link: newRefLink }),
+      body: JSON.stringify({ link: normalizedLink }),
     });
 
     if (response.status === 409) {
@@ -140,23 +142,7 @@ function closeWinner() {
 // Video-Ton-Steuerung
 document.addEventListener("DOMContentLoaded", () => {
   const video = document.getElementById("backgroundVideo");
-  const playButton = document.createElement("button");
-
-  playButton.id = "playButton";
-  playButton.textContent = "🔊 Mute/Unmute";
-  document.body.appendChild(playButton);
-
-  // Button positionieren (oben rechts)
-  playButton.style.position = "absolute";
-  playButton.style.top = "10px";
-  playButton.style.right = "10px";
-  playButton.style.zIndex = "10";
-  playButton.style.padding = "10px";
-  playButton.style.background = "#ff00ff";
-  playButton.style.color = "white";
-  playButton.style.border = "none";
-  playButton.style.borderRadius = "5px";
-  playButton.style.cursor = "pointer";
+  const playButton = document.getElementById("playButton");
 
   // Automatisch Ton aktivieren
   video.muted = false;
