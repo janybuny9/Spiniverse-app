@@ -32,6 +32,8 @@ const addLinkForm = document.getElementById("addLinkForm");
 const newRefLinkInput = document.getElementById("newRefLink");
 const submitLinkButton = document.getElementById("submitLinkButton");
 const cancelLinkButton = document.getElementById("cancelLinkButton");
+const playButton = document.getElementById("playButton");
+const video = document.getElementById("backgroundVideo");
 
 let spinning = false;
 let currentRotation = 0;
@@ -78,12 +80,12 @@ spinButton.addEventListener("click", () => {
   roulette.style.transform = `rotate(${currentRotation}deg)`;
 
   setTimeout(() => {
-  winnerImage.src = images[winnerIndex % images.length];
-  winnerLink.href = links[winnerIndex];
-  winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
-  winnerDiv.classList.remove("hidden");
-  spinning = false;
-}, 3000);
+    winnerImage.src = images[winnerIndex % images.length];
+    winnerLink.href = links[winnerIndex];
+    winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
+    winnerDiv.classList.remove("hidden");
+    spinning = false;
+  }, 3000);
 });
 
 // Add Ref Link Logic
@@ -137,8 +139,16 @@ function closeWinner() {
   winnerDiv.classList.add("hidden");
 }
 
+// Play Button Logic
+playButton.addEventListener("click", () => {
+  video.muted = false; // Ton aktivieren
+  video.play(); // Video abspielen
+  playButton.style.display = "none"; // Button ausblenden
+});
+
 // Initiale Links laden
 fetchLinks();
+
 
 
 
