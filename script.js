@@ -1,12 +1,24 @@
-import { fetchLinksFromAPI, addLinkToAPI } from "./LINK.js";
-
 const images = Array.from({ length: 22 }, (_, i) => `Images/pink-pepe${i + 1}.png`);
-let links = []; // Dynamische Links-Liste
+let links = [];
 
 // API-Verbindung herstellen und Links laden
-async function initializeLinks() {
-  links = await fetchLinksFromAPI();
-  console.log("Abruf der Links abgeschlossen:", links);
+async function fetchLinks() {
+  try {
+    const response = await fetch("https://spiniverse-app.vercel.app/api/links");
+    if (!response.ok) {
+      throw new Error("Failed to fetch links");
+    }
+    links = await response.json();
+    console.log("Aktuelle Links:", links);
+  } catch (error) {
+    console.error("Error fetching links:", error);
+    links = [];
+  }
+}
+
+// Links-Liste im Frontend aktualisieren (optional in der Konsole sichtbar)
+function logLinks() {
+  console.log("Links in der Liste:", links);
 }
 
 // Roulette-Setup
@@ -51,7 +63,7 @@ populateRoulette();
 // Spin Button Logic
 spinButton.addEventListener("click", () => {
   if (spinning || links.length === 0) {
-    alert("Keine Referral-Links verfügbar!");
+    alert("No referral links available to spin!");
     return;
   }
   spinning = true;
@@ -67,8 +79,8 @@ spinButton.addEventListener("click", () => {
 
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
-    winnerLink.href = links[winnerIndex].ref_link;
-    winnerLink.textContent = "Winning Referral Link";
+    winnerLink.href = links[winnerIndex];
+    winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
     winnerDiv.classList.remove("hidden");
     spinning = false;
   }, 3000);
@@ -80,23 +92,39 @@ addLinkButton.addEventListener("click", () => addLinkForm.classList.toggle("hidd
 submitLinkButton.addEventListener("click", async () => {
   const newRefLink = newRefLinkInput.value.trim();
 
-  // Validierung des Links
   if (!newRefLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
-    alert("Ungültiger Ref Link");
+    alert("Invalid Ref Link");
     return;
   }
 
-  const result = await addLinkToAPI(newRefLink);
-  if (result.error) {
-    alert(result.error);
-  } else {
-    links.push(result);
-    console.log("Aktualisierte Links:", links);
-    alert("Link erfolgreich hinzugefügt!");
-  }
+  try {
+    const response = await fetch("https://spiniverse-app.vercel.app/api/links", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ link: newRefLink }),
+    });
 
-  newRefLinkInput.value = "";
-  addLinkForm.classList.add("hidden");
+    if (response.status === 409) {
+      alert("This link already exists!");
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Failed to add link");
+    }
+
+    const result = await response.json();
+    links.push(result.link);
+    logLinks(); // Links in der Konsole anzeigen
+    newRefLinkInput.value = "";
+    addLinkForm.classList.add("hidden");
+    alert("Link successfully added!");
+  } catch (error) {
+    console.error("Error adding link:", error);
+    alert("Failed to add link. Please try again.");
+  }
 });
 
 cancelLinkButton.addEventListener("click", () => {
@@ -112,22 +140,40 @@ function closeWinner() {
 // Video-Ton-Steuerung
 document.addEventListener("DOMContentLoaded", () => {
   const video = document.getElementById("backgroundVideo");
-  const playButton = document.getElementById("playButton");
+  const playButton = document.createElement("button");
 
+  playButton.id = "playButton";
+  playButton.textContent = "🔊 Mute/Unmute";
+  document.body.appendChild(playButton);
+
+  // Button positionieren (oben rechts)
+  playButton.style.position = "absolute";
+  playButton.style.top = "10px";
+  playButton.style.right = "10px";
+  playButton.style.zIndex = "10";
+  playButton.style.padding = "10px";
+  playButton.style.background = "#ff00ff";
+  playButton.style.color = "white";
+  playButton.style.border = "none";
+  playButton.style.borderRadius = "5px";
+  playButton.style.cursor = "pointer";
+
+  // Automatisch Ton aktivieren
   video.muted = false;
   video.play().catch((error) => {
     console.warn("Autoplay failed:", error);
-    video.muted = true;
+    video.muted = true; // Falls Autoplay scheitert, bleibt das Video stumm.
   });
 
+  // Button-Logik
   playButton.addEventListener("click", () => {
-    video.muted = !video.muted;
-    video.play();
+    video.muted = !video.muted; // Ton ein-/ausschalten
+    video.play(); // Sicherstellen, dass das Video weiter abgespielt wird
   });
 });
 
 // Initiale Links laden
-initializeLinks();
+fetchLinks();
 
 
 
