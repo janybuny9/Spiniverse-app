@@ -134,10 +134,9 @@ cancelLinkButton.addEventListener("click", () => {
   addLinkForm.classList.add("hidden");
 });
 
-// Close Winner Div
+// Close Winner Div on Ref Link Click
 function closeWinner() {
-    const winnerDiv = document.getElementById("winner");
-    winnerDiv.classList.add("hidden");
+  winnerDiv.classList.add("hidden");
 }
 
 // Video-Ton-Steuerung
