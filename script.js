@@ -100,7 +100,7 @@ submitLinkButton.addEventListener("click", async () => {
   }
 
   try {
-    const response = await fetch("https://<your-pythonanywhere-domain>/add_ref", { // Ersetze mit deiner Flask-URL
+    const response = await fetch("https://janybuny9.pythonanywhere.com/add_ref", { // Ersetze mit deiner Flask-URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
