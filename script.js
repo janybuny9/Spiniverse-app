@@ -4,19 +4,19 @@ let links = [];
 // API-Verbindung herstellen und Links laden
 async function fetchLinks() {
   try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links");
+    const response = await fetch("https://<your-pythonanywhere-domain>/get_refs"); // Ersetze mit deiner Flask-URL
     if (!response.ok) {
       throw new Error("Failed to fetch links");
     }
     links = await response.json();
-    console.log("Aktuelle Links:", links);
+    console.log("Aktuelle Links aus der DB:", links);
   } catch (error) {
     console.error("Error fetching links:", error);
     links = [];
   }
 }
 
-// Links-Liste im Frontend aktualisieren (optional in der Konsole sichtbar)
+// Links-Liste im Frontend aktualisieren
 function logLinks() {
   console.log("Links in der Liste:", links);
 }
@@ -79,7 +79,7 @@ spinButton.addEventListener("click", () => {
 
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
-    winnerLink.href = links[winnerIndex];
+    winnerLink.href = links[winnerIndex].ref_link; // Verwende den Link aus der DB
     winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
     winnerDiv.classList.remove("hidden");
     spinning = false;
@@ -100,12 +100,12 @@ submitLinkButton.addEventListener("click", async () => {
   }
 
   try {
-    const response = await fetch("https://spiniverse-app.vercel.app/api/links", {
+    const response = await fetch("https://<your-pythonanywhere-domain>/add_ref", { // Ersetze mit deiner Flask-URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ link: normalizedLink }),
+      body: JSON.stringify({ ref_link: normalizedLink }),
     });
 
     if (response.status === 409) {
@@ -118,7 +118,7 @@ submitLinkButton.addEventListener("click", async () => {
     }
 
     const result = await response.json();
-    links.push(result.link);
+    links.push({ ref_link: normalizedLink }); // Nur den normalen Link hinzufügen
     logLinks(); // Links in der Konsole anzeigen
     newRefLinkInput.value = "";
     addLinkForm.classList.add("hidden");
@@ -160,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initiale Links laden
 fetchLinks();
+
 
 
 
