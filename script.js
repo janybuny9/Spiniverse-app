@@ -4,12 +4,12 @@ let links = [];
 // API-Verbindung herstellen und Links laden
 async function fetchLinks() {
   try {
-    const response = await fetch("https://janybuny9.pythonanywhere.com/get_refs"); // Ersetze mit deiner Flask-URL
+    const response = await fetch("https://janybuny9.pythonanywhere.com/get_refs");
     if (!response.ok) {
       throw new Error("Failed to fetch links");
     }
     links = await response.json();
-    console.log("Aktuelle Links aus der DB:", links);
+    console.log("Aktuelle Links:", links);
   } catch (error) {
     console.error("Error fetching links:", error);
     links = [];
