@@ -1,7 +1,7 @@
 const images = Array.from({ length: 22 }, (_, i) => `Images/pink-pepe${i + 1}.png`);
 let links = [];
 
-// API-Verbindung herstellen und Links laden
+// Establish API connection and load links
 async function fetchLinks() {
   try {
     const response = await fetch("https://janybuny9.pythonanywhere.com/get_refs");
@@ -16,12 +16,12 @@ async function fetchLinks() {
   }
 }
 
-// Links-Liste im Frontend aktualisieren
+// Update links list in frontend
 function logLinks() {
   console.log("Links in der Liste:", links);
 }
 
-// Roulette-Setup
+// Setup for the roulette wheel
 const roulette = document.querySelector(".roulette");
 const spinButton = document.getElementById("spinButton");
 const winnerDiv = document.getElementById("winner");
@@ -36,7 +36,7 @@ const cancelLinkButton = document.getElementById("cancelLinkButton");
 let spinning = false;
 let currentRotation = 0;
 
-// Populate Roulette
+// Populate the roulette wheel with images
 function populateRoulette() {
   roulette.innerHTML = "";
   images.forEach((imgSrc, index) => {
@@ -60,7 +60,7 @@ function populateRoulette() {
 }
 populateRoulette();
 
-// Spin Button Logic
+// Logic for the spin button
 spinButton.addEventListener("click", () => {
   if (spinning || links.length === 0) {
     alert("No referral links available to spin!");
@@ -69,7 +69,7 @@ spinButton.addEventListener("click", () => {
   spinning = true;
   winnerDiv.classList.add("hidden");
 
-  // Zufälligen Link auswählen
+  // Randomly select a link
   const winnerIndex = Math.floor(Math.random() * links.length);
   const winnerRotation = (winnerIndex * 360) / images.length;
   currentRotation += 3600 + winnerRotation;
@@ -79,8 +79,8 @@ spinButton.addEventListener("click", () => {
 
   setTimeout(() => {
     winnerImage.src = images[winnerIndex % images.length];
-    winnerLink.href = links[winnerIndex].ref_link; // Verwende den Link aus der DB
-    winnerLink.textContent = "Winning Referral Link"; // Text für den Gewinnerlink
+    winnerLink.href = links[winnerIndex].ref_link; // Use the link from the database
+    winnerLink.textContent = "Winning Referral Link"; // Text for the winning link
     winnerDiv.classList.remove("hidden");
     spinning = false;
   }, 3000);
@@ -92,7 +92,7 @@ addLinkButton.addEventListener("click", () => addLinkForm.classList.toggle("hidd
 submitLinkButton.addEventListener("click", async () => {
   const newRefLink = newRefLinkInput.value.trim();
 
-  // Normalisieren des Links: Immer mit "www."
+  // Normalize the link: Always start with "www."
   const normalizedLink = newRefLink.replace("https://pond0x.com/", "https://www.pond0x.com/");
   if (!normalizedLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
     alert("Invalid Ref Link");
@@ -100,7 +100,7 @@ submitLinkButton.addEventListener("click", async () => {
   }
 
   try {
-    const response = await fetch("https://janybuny9.pythonanywhere.com/add_ref", { // Ersetze mit deiner Flask-URL
+    const response = await fetch("https://janybuny9.pythonanywhere.com/add_ref", { // Replace with your Flask URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,8 +118,8 @@ submitLinkButton.addEventListener("click", async () => {
     }
 
     const result = await response.json();
-    links.push({ ref_link: normalizedLink }); // Nur den normalen Link hinzufügen
-    logLinks(); // Links in der Konsole anzeigen
+    links.push({ ref_link: normalizedLink }); // Add only the normalized link
+    logLinks(); // Display links in the console
     newRefLinkInput.value = "";
     addLinkForm.classList.add("hidden");
     alert("Link successfully added!");
@@ -139,26 +139,26 @@ function closeWinner() {
   winnerDiv.classList.add("hidden");
 }
 
-// Video-Ton-Steuerung
+// Video sound control
 document.addEventListener("DOMContentLoaded", () => {
   const video = document.getElementById("backgroundVideo");
   const playButton = document.getElementById("playButton");
 
-  // Automatisch Ton aktivieren
+  // Automatically enable sound
   video.muted = false;
   video.play().catch((error) => {
     console.warn("Autoplay failed:", error);
-    video.muted = true; // Falls Autoplay scheitert, bleibt das Video stumm.
+    video.muted = true; // If autoplay fails, keep the video muted.
   });
 
-  // Button-Logik
+  // Button-Logic
   playButton.addEventListener("click", () => {
-    video.muted = !video.muted; // Ton ein-/ausschalten
-    video.play(); // Sicherstellen, dass das Video weiter abgespielt wird
+    video.muted = !video.muted; // Toggle sound on/off
+    video.play(); // Ensure the video keeps playing
   });
 });
 
-// Initiale Links laden
+// Load initial links
 fetchLinks();
 
 
