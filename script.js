@@ -1,6 +1,13 @@
 const images = Array.from({ length: 22 }, (_, i) => `Images/pink-pepe${i + 1}.png`);
 let links = [];
 
+// Winner Fenster schliessen
+function closeWinner() {
+    const winnerDiv = document.getElementById("winner");
+    winnerDiv.classList.add("hidden");
+}
+
+
 // API-Verbindung herstellen und Links laden
 async function fetchLinks() {
   try {
