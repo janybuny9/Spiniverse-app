@@ -88,7 +88,7 @@ let links = [
   "https://www.pond0x.com/swap/solana?ref=HiadU997LPFnJfjG193QpauuRDYBiUcSAy8Tkr22pC3Q1gNC3g2d2kSZi7rz",
   "https://www.pond0x.com/swap/solana?ref=QYU87ALYEGF87qx57WAqVCSNEi87ZBCMEbk6BKQ5jy1j1xjr6UiNChvRte9R",
   "https://www.pond0x.com/swap/solana?ref=K2P4AvyZFsFSXgNZdr1BeYXWwZLCNxPoBN1wDcvoEH4kkV3mnqyaEvXqYxwX",
-  // Füge hier weitere Links hinzu, falls gewünscht
+  // Add more links with descriptions as needed
 ];
 
 export default function handler(req, res) {
@@ -102,25 +102,25 @@ export default function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    // Rückgabe aller Links
+    // Return all links 
     res.status(200).json(links);
   } else if (req.method === "POST") {
     const { link } = req.body;
 
-    // Normalisieren des Links: Immer mit "www."
+    // Normalize the link: Always with "www."
     const normalizedLink = link.replace("https://pond0x.com/", "https://www.pond0x.com/");
     if (!normalizedLink.startsWith("https://www.pond0x.com/swap/solana?ref=")) {
       res.status(400).json({ error: "Ungültiger Link" });
       return;
     }
 
-    // Überprüfung auf Duplikate
+    // Check for duplicates
     if (links.includes(normalizedLink)) {
       res.status(409).json({ error: "Link existiert bereits" });
       return;
     }
 
-    // Hinzufügen des Links
+    // Add the new link
     links.push(normalizedLink);
     res.status(201).json({ link: normalizedLink });
   } else {
